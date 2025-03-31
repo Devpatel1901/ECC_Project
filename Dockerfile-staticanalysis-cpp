@@ -1,0 +1,12 @@
+FROM gcc:13
+
+# Install static analysis tool: cppcheck
+RUN apt-get update && \
+    apt-get install -y cppcheck && \
+    apt-get clean
+
+WORKDIR /app
+COPY static_analysis.sh /app/static_analysis.sh
+RUN chmod +x /app/static_analysis.sh
+
+ENTRYPOINT ["/app/static_analysis.sh"]

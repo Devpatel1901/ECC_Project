@@ -1,0 +1,11 @@
+FROM openjdk:21-slim
+
+# Install static code analysis tool: Checkstyle
+RUN apt-get update && apt-get install -y wget unzip && \
+    wget -O /checkstyle.jar https://github.com/checkstyle/checkstyle/releases/download/checkstyle-10.12.3/checkstyle-10.12.3-all.jar
+
+WORKDIR /app
+COPY code_runner.sh /app/code_runner.sh
+RUN chmod +x /app/code_runner.sh
+
+ENTRYPOINT ["/app/code_runner.sh"]

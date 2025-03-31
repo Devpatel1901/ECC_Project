@@ -1,0 +1,11 @@
+FROM node:20
+
+# Install ESLint for static analysis
+RUN npm install -g eslint
+
+WORKDIR /app
+COPY eslint.config.js /app/eslint.config.js
+COPY static_analysis.sh /app/static_analysis.sh
+RUN chmod +x /app/static_analysis.sh
+
+ENTRYPOINT ["/app/static_analysis.sh"]

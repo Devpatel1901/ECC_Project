@@ -1,0 +1,42 @@
+FROM ubuntu:latest
+
+# Install required dependencies for multiple languages and static analysis tools
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    openjdk-17-jdk \
+    python3 \
+    python3-pip \
+    python3-venv \
+    nodejs \
+    npm \
+    golang \
+    default-jre \
+    wget \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pyflakes in a Python virtual environment
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install pyflakes
+
+# Install cppcheck
+RUN apt-get update && apt-get install -y cppcheck
+
+# Install golint
+RUN go install golang.org/x/lint/golint@latest
+
+# Install eslint
+RUN npm install -g eslint
+
+# Install checkstyle
+RUN wget https://github.com/checkstyle/checkstyle/releases/download/checkstyle-8.41/checkstyle-8.41-all.jar -O /usr/local/bin/checkstyle
+
+WORKDIR /app
+COPY google_checks.xml /app/google_checks.xml 
+COPY eslint.config.js /app/eslint.config.js
+COPY static_analysis.sh /app/static_analysis.sh
+RUN chmod +x /app/static_analysis.sh
+
+ENTRYPOINT ["/app/static_analysis.sh"]
