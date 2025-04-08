@@ -14,6 +14,7 @@ while True:
     messages = sqs.receive_message(QueueUrl=QUEUE_URL, MaxNumberOfMessages=1, WaitTimeSeconds=10)
 
     if "Messages" not in messages:
+        print("[...] No messages found. Polling again...")
         continue
 
     for msg in messages["Messages"]:

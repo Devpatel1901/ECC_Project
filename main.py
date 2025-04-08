@@ -53,4 +53,4 @@ async def submit_code(language: str = Form(...), code: UploadFile = Form(...), s
     }
     sqs.send_message(QueueUrl=SQS_QUEUE_URL, MessageBody=json.dumps(job))
 
-    return {"submission_id": submission_id, "status": "QUEUED"}
+    return {"submission_id": submission_id, "job": job, "status": "QUEUED"}
