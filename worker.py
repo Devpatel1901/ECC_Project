@@ -43,7 +43,7 @@ while True:
             download_from_s3(job["input_key"], input_path)
 
         result = execute_code(lang, code_path, input_path)
-        output_key = f"results/{sid}/output.txt"
+        output_key = f"results/{sid}/output.json"
         upload_result_to_s3(output_key, result)
 
         update_status(sid, "COMPLETED", output_key)

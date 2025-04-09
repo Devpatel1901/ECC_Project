@@ -18,6 +18,14 @@ def execute_code(language: str, code_path: str, input_path: str = None):
 
     image = IMAGE_MAP[language]
 
+    result_json = {
+        "language": language,
+        "status": "failed",
+        "success": False,
+        "stdout": "",
+        "stderr": ""
+    }
+
     try:
         result = client.containers.run(
             image,
@@ -32,11 +40,18 @@ def execute_code(language: str, code_path: str, input_path: str = None):
             cpu_period=100000,
             cpu_quota=25000,
         )
+        decoded = result.decode("utf-8") if isinstance(result, bytes) else str(result)
+        result_json.update({
+            "stdout": decoded.strip(),
+            "status": "success",
+            "success": True
+        })
     except docker.errors.ContainerError as e:
-        return f"[Docker Error] Container failed: {e}"
+        stderr = e.stderr.decode("utf-8") if hasattr(e, 'stderr') and e.stderr else str(e)
+        result_json["stderr"] = stderr.strip()
     except docker.errors.ImageNotFound:
-        return f"[Docker Error] Image '{image}' not found."
+        result_json["stderr"] = f"Image '{image}' not found."
     except Exception as e:
-        return f"[Unknown Error] {str(e)}"
+        result_json["stderr"] = str(e)
 
-    return result.decode("utf-8") if isinstance(result, bytes) else result
+    return result_json

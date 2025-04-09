@@ -1,6 +1,8 @@
 # main.py
 from fastapi import FastAPI, UploadFile, Form, HTTPException
 from uuid import uuid4
+
+from fastapi.responses import JSONResponse
 import boto3
 import json
 from starlette.status import HTTP_413_REQUEST_ENTITY_TOO_LARGE
@@ -11,7 +13,12 @@ MAX_INPUT_SIZE = 64 * 1024  # 64 KB
 
 app = FastAPI()
 sqs = boto3.client("sqs")
+dynamodb = boto3.resource("dynamodb")
+s3 = boto3.client("s3")
 SQS_QUEUE_URL = "https://sqs.us-east-2.amazonaws.com/774305605898/CodeExecutionQueue"
+
+DDB_TABLE = "CodeSubmissions"
+S3_BUCKET = "code-nexus-submissions"
 
 @app.post("/submit")
 async def submit_code(language: str = Form(...), code: UploadFile = Form(...), stdin: UploadFile = Form(None)):
@@ -54,3 +61,35 @@ async def submit_code(language: str = Form(...), code: UploadFile = Form(...), s
     sqs.send_message(QueueUrl=SQS_QUEUE_URL, MessageBody=json.dumps(job))
 
     return {"submission_id": submission_id, "job": job, "status": "QUEUED"}
+
+@app.get("/results/{submission_id}")
+def get_submission_result(submission_id: str):
+    table = dynamodb.Table(DDB_TABLE)
+
+    try:
+        # Step 1: Get job metadata from DynamoDB
+        response = table.get_item(Key={"submission_id": submission_id})
+        item = response.get("Item")
+
+        if not item:
+            raise HTTPException(status_code=404, detail="Submission ID not found")
+
+        if item["status"] != "COMPLETED":
+            return JSONResponse(content={
+                "status": item["status"],
+                "message": "Code is still being processed. Please try again later."
+            }, status_code=202)
+
+        result_key = item.get("result_key")
+        if not result_key:
+            raise HTTPException(status_code=500, detail="Result key not available")
+
+        # Step 2: Fetch result JSON from S3
+        s3_obj = s3.get_object(Bucket=S3_BUCKET, Key=result_key)
+        result_content = s3_obj["Body"].read().decode("utf-8")
+        result_json = json.loads(result_content)
+
+        return result_json
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
