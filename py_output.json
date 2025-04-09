@@ -1,7 +1,0 @@
-{
-  "language": "python",
-  "status": "failed",
-  "success": false,
-  "stdout": "",
-  "stderr": "File \"/code/code.py\", line 3\n    print(\"a + b = \", a + b\n         ^\nSyntaxError: '(' was never closed"
-}

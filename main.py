@@ -1,5 +1,6 @@
 # main.py
 from fastapi import FastAPI, UploadFile, Form, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
 
 from fastapi.responses import JSONResponse
@@ -12,6 +13,15 @@ MAX_INPUT_SIZE = 64 * 1024  # 64 KB
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 sqs = boto3.client("sqs")
 dynamodb = boto3.resource("dynamodb")
 s3 = boto3.client("s3")
