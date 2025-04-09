@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+
+# Install Bandit
+RUN pip install --no-cache-dir bandit
+
+WORKDIR /code
+
+# Default command: analyze and output JSON
+ENTRYPOINT ["bandit"]

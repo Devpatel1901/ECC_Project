@@ -1,0 +1,8 @@
+FROM golang:1.21-alpine
+
+RUN go install honnef.co/go/tools/cmd/staticcheck@v0.4.6
+
+ENV PATH="/go/bin:$PATH"
+WORKDIR /code
+
+ENTRYPOINT ["staticcheck"]

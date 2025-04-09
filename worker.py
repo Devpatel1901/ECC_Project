@@ -6,6 +6,7 @@ import os
 from docker_executor import execute_code
 from s3_utils import download_from_s3, upload_result_to_s3
 from dynamodb_utils import update_status
+from static_analyzer import run_static_analysis
 
 sqs = boto3.client("sqs")
 QUEUE_URL = "https://sqs.us-east-2.amazonaws.com/774305605898/CodeExecutionQueue"
@@ -42,11 +43,19 @@ while True:
         if job.get("input_key"):
             download_from_s3(job["input_key"], input_path)
 
+        analysis_result = run_static_analysis(lang, work_dir, os.path.basename(code_path))
+
+        print(analysis_result)
+
+        analysis_key = f"results/{sid}/static_analysis.json"
+        upload_result_to_s3(analysis_key, analysis_result)
+
         result = execute_code(lang, code_path, input_path)
+        print(result)
         output_key = f"results/{sid}/output.json"
         upload_result_to_s3(output_key, result)
 
-        update_status(sid, "COMPLETED", output_key)
+        update_status(sid, "COMPLETED", output_key, analysis_key)
 
         # Delete message
         sqs.delete_message(QueueUrl=QUEUE_URL, ReceiptHandle=msg["ReceiptHandle"])

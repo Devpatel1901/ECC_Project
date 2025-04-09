@@ -93,3 +93,18 @@ def get_submission_result(submission_id: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/analysis/{submission_id}")
+def get_analysis(submission_id: str):
+    table = dynamodb.Table(DDB_TABLE)
+
+    item = table.get_item(Key={"submission_id": submission_id}).get("Item")
+    if not item or "analysis_key" not in item:
+        raise HTTPException(status_code=404, detail="Analysis not found")
+
+    try:
+        obj = s3.get_object(Bucket=S3_BUCKET, Key=item["analysis_key"])
+        return json.loads(obj["Body"].read().decode("utf-8"))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
