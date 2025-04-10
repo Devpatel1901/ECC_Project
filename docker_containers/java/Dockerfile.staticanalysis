@@ -1,0 +1,16 @@
+FROM openjdk:17-slim
+
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Download Checkstyle JAR
+RUN curl -L -o /checkstyle.jar https://github.com/checkstyle/checkstyle/releases/download/checkstyle-10.12.3/checkstyle-10.12.3-all.jar
+
+# Download matching config
+RUN mkdir /config && \
+    curl -L -o /config/google_checks.xml https://raw.githubusercontent.com/checkstyle/checkstyle/checkstyle-10.12.3/src/main/resources/google_checks.xml
+
+WORKDIR /code
+
+ENTRYPOINT ["java", "-jar", "/checkstyle.jar", "-c", "/config/google_checks.xml"]

@@ -1,3 +1,5 @@
 .venv/
 *.config.js
 *.xml
+*.txt
+*.log
