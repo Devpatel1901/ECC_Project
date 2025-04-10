@@ -3,7 +3,7 @@ import boto3
 from constants import DDB_TABLE
 
 
-db = boto3.resource("dynamodb")
+db = boto3.resource("dynamodb", region_name="us-east-2")
 table = db.Table(DDB_TABLE)
 
 def update_status(submission_id, status, result_key, analysis_key=None):

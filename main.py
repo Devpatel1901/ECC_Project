@@ -23,9 +23,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-sqs = boto3.client("sqs")
-dynamodb = boto3.resource("dynamodb")
-s3 = boto3.client("s3")
+sqs = boto3.client("sqs", region_name="us-east-2")
+dynamodb = boto3.resource("dynamodb", region_name="us-east-2")
+s3 = boto3.client("s3", region_name="us-east-2")
 
 @app.post("/submit")
 async def submit_code(language: str = Form(...), code: UploadFile = Form(...), stdin: UploadFile = Form(None)):

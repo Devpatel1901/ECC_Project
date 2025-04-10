@@ -31,7 +31,7 @@ class ContextualLogger(LoggerAdapter):
         return f"[submission_id={self.extra.get('submission_id', '-')}] {msg}", kwargs
 
 # === SQS === #
-sqs = boto3.client("sqs")
+sqs = boto3.client("sqs", region_name="us-east-2")
 
 # === Job Handler === #
 def handle_message(msg):

@@ -4,7 +4,7 @@ from fastapi import UploadFile
 import boto3
 from constants import S3_BUCKET
 
-s3 = boto3.client("s3")
+s3 = boto3.client("s3", region_name="us-east-2")
 
 async def upload_to_s3(file: UploadFile, key: str):
     content = await file.read()
