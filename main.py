@@ -8,6 +8,7 @@ import boto3
 import json
 from starlette.status import HTTP_413_REQUEST_ENTITY_TOO_LARGE
 from s3_utils import upload_to_s3
+from constants import SQS_QUEUE_URL, DDB_TABLE, S3_BUCKET
 
 MAX_INPUT_SIZE = 64 * 1024  # 64 KB
 
@@ -25,10 +26,6 @@ app.add_middleware(
 sqs = boto3.client("sqs")
 dynamodb = boto3.resource("dynamodb")
 s3 = boto3.client("s3")
-SQS_QUEUE_URL = "https://sqs.us-east-2.amazonaws.com/774305605898/CodeExecutionQueue"
-
-DDB_TABLE = "CodeSubmissions"
-S3_BUCKET = "code-nexus-submissions"
 
 @app.post("/submit")
 async def submit_code(language: str = Form(...), code: UploadFile = Form(...), stdin: UploadFile = Form(None)):

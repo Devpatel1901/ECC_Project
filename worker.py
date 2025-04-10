@@ -10,6 +10,7 @@ from dynamodb_utils import update_status
 from static_analyzer import run_static_analysis
 import watchtower
 from logging import LoggerAdapter
+from constants import SQS_QUEUE_URL
 
 # === Base Logging Setup === #
 logging.basicConfig(
@@ -31,7 +32,6 @@ class ContextualLogger(LoggerAdapter):
 
 # === SQS === #
 sqs = boto3.client("sqs")
-QUEUE_URL = "https://sqs.us-east-2.amazonaws.com/774305605898/CodeExecutionQueue"
 
 # === Job Handler === #
 def handle_message(msg):
@@ -87,7 +87,7 @@ def handle_message(msg):
 
         update_status(sid, "COMPLETED", output_key, analysis_key)
 
-        sqs.delete_message(QueueUrl=QUEUE_URL, ReceiptHandle=msg["ReceiptHandle"])
+        sqs.delete_message(QueueUrl=SQS_QUEUE_URL, ReceiptHandle=msg["ReceiptHandle"])
 
         try:
             shutil.rmtree(work_dir)
@@ -105,7 +105,7 @@ def handle_message(msg):
 MAX_WORKERS = 4
 
 while True:
-    messages = sqs.receive_message(QueueUrl=QUEUE_URL, MaxNumberOfMessages=1, WaitTimeSeconds=10)
+    messages = sqs.receive_message(QueueUrl=SQS_QUEUE_URL, MaxNumberOfMessages=1, WaitTimeSeconds=10)
 
     if "Messages" not in messages:
         base_logger.info("[...] No messages found. Polling again...")

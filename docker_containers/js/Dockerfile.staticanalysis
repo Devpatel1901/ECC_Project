@@ -5,6 +5,6 @@ RUN npm install -g eslint @eslint/js
 
 WORKDIR /code
 
-COPY eslint.config.js eslint.config.js
+COPY eslint.config.js .
 
 ENTRYPOINT ["eslint"]

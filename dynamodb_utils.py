@@ -1,9 +1,10 @@
 # dynamodb_utils.py
 import boto3
-from datetime import datetime
+from constants import DDB_TABLE
+
 
 db = boto3.resource("dynamodb")
-table = db.Table("CodeSubmissions")
+table = db.Table(DDB_TABLE)
 
 def update_status(submission_id, status, result_key, analysis_key=None):
     expression = "SET #s = :s, result_key = :r"

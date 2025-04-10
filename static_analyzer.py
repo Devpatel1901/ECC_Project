@@ -2,7 +2,6 @@ import docker
 import os
 import json
 from datetime import datetime
-import xml.etree.ElementTree as ET
 
 client = docker.from_env()
 
