@@ -136,5 +136,5 @@ platforms or educational environments that require robust code evaluation engine
 
 1. Dev Patel
 2. Dhwanit Pandya
-3. Parth Dedhiya
+3. Pratham Dedhiya
 4. Siddhant Singh
